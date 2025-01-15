@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dubai Budget Planner</title>
+    <style>
+        /* General Reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: black;
+            overflow: hidden;
+        }
+
+        /* Moving Background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, #ff007b, #007bff, #00ff7b);
+            background-size: 300% 300%;
+            animation: moveBackground 10s infinite;
+            z-index: -1;
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Title */
+        .container h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ff007b;
+        }
+
+        /* Input Fields */
+        .budget-input {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .budget-input input {
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .budget-input input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Submit Button */
+        .budget-input button {
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            color: white;
+            background: #007bff;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .budget-input button:hover {
+            background: #0056b3;
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.6);
+        }
+
+        /* Results Section */
+        .results {
+            margin-top: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: left;
+            max-height: 300px; /* Set a maximum height */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        .results h2 {
+            margin-bottom: 15px;
+            color: #00ff7b;
+        }
+
+        .results ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .results li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dubai Budget Planner</h1>
+        <div class="budget-input">
+            <input type="number" id="minBudget" placeholder="Enter Minimum Budget">
+            <input type="number" id="maxBudget" placeholder="Enter Maximum Budget">
+            <button onclick="submitBudget()">Find Places</button>
+            <button onclick="showFreePlaces()">Show Free Places</button>
+        </div>
+        <div class="results" id="results">
+            <!-- Results will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // Updated Data: List of 50 places with prices
+        const places = [
+            { name: "Burj Khalifa - At The Top", price: 169 },
+            { name: "Dubai Mall", price: 0 },
+            { name: "Desert Safari with BBQ Dinner", price: 300 },
+            { name: "Dubai Aquarium & Underwater Zoo", price: 130 },
+            { name: "Palm Jumeirah - Boardwalk", price: 0 },
+            { name: "Ski Dubai - Snow Classic Pass", price: 275 },
+            { name: "Dubai Marina Cruise with Dinner", price: 200 },
+            { name: "Global Village", price: 25 },
+            { name: "Dubai Frame", price: 50 },
+            { name: "The Lost Chambers Aquarium", price: 110 },
+            { name: "Wild Wadi Water Park", price: 299 },
+            { name: "IMG Worlds of Adventure", price: 345 },
+            { name: "Motiongate Dubai", price: 330 },
+            { name: "Aquaventure Water Park", price: 299 },
+            { name: "Dubai Miracle Garden", price: 55 },
+            { name: "Al Fahidi Historical District", price: 0 },
+            { name: "Dubai Opera", price: 100 },
+            { name: "Museum of the Future", price: 145 },
+            { name: "La Mer Beach", price: 0 },
+            { name: "Zabeel Park", price: 5 },
+            { name: "Jumeirah Mosque", price: 25 },
+            { name: "Alserkal Avenue", price: 0 },
+            { name: "Dubai Creek", price: 1 },
+            { name: "Ras Al Khor Wildlife Sanctuary", price: 0 },
+            { name: "Dubai Gold Souk", price: 0 },
+            { name: "Dubai Spice Souk", price: 0 },
+            { name: "City Walk", price: 0 },
+            { name: "Etihad Museum", price: 25 },
+            { name: "JBR Walk", price: 0 },
+            { name: "Hatta Heritage Village", price: 0 },
+            { name: "Hatta Dam", price: 0 },
+            { name: "Love Lake Dubai", price: 0 },
+            { name: "Bluewaters Island", price: 0 },
+            { name: "Dubai Water Canal", price: 0 },
+            { name: "Expo City Dubai", price: 50 },
+            { name: "Dubai Dolphinarium", price: 120 },
+            { name: "Al Marmoom Desert Conservation Reserve", price: 0 },
+            { name: "XLine Dubai Marina", price: 650 },
+            { name: "Jebel Ali Beach", price: 0 },
+            { name: "Laguna Waterpark", price: 125 },
+            { name: "Bollywood Parks Dubai", price: 275 },
+            { name: "Dubai Garden Glow", price: 65 },
+            { name: "Al Noor Island", price: 35 },
+            { name: "Dubai Butterfly Garden", price: 55 },
+            { name: "Dubai Ice Rink", price: 85 },
+            { name: "The Green Planet", price: 125 },
+            { name: "Kite Beach", price: 0 },
+            { name: "Dubai Design District", price: 0 },
+            { name: "Dubai Festival City Mall", price: 0 },
+            { name: "Bab Al Shams Desert Resort", price: 200 }
+        ];
+
+        function submitBudget() {
+            const minBudget = parseFloat(document.getElementById('minBudget').value);
+            const maxBudget = parseFloat(document.getElementById('maxBudget').value);
+
+            if (!minBudget || !maxBudget) {
+                alert('Please enter both minimum and maximum budgets.');
+                return;
+            }
+
+            const filteredPlaces = places.filter(place => place.price >= minBudget && place.price <= maxBudget);
+            displayResults(filteredPlaces);
+        }
+
+        function showFreePlaces() {
+            const freePlaces = places.filter(place => place.price === 0);
+            displayResults(freePlaces);
+        }
+
+        function displayResults(filteredPlaces) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            if (filteredPlaces.length === 0) {
+                resultsContainer.innerHTML = '<h2>No places found within this budget range.</h2>';
+                return;
+            }
+
+            resultsContainer.innerHTML = '<h2>Results:</h2>';
+            const list = document.createElement('ul');
+
+            filteredPlaces.forEach(place => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${place.name} - AED ${place.price}`;
+                list.appendChild(listItem);
+            });
+
+            resultsContainer.appendChild(list);
+        }
+    </script>
+</body>
+</html>
