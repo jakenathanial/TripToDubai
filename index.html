@@ -12,14 +12,11 @@
             box-sizing: border-box;
             height: 100%;
             font-family: 'Poppins', sans-serif;
-            background: black;
-            overflow: hidden;
-        }
-
-        /* Custom Background */
-        body {
-            background: url('unnamed.png') no-repeat center center fixed;
-            background-size: cover;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Main Container */
@@ -27,9 +24,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: white;
             text-align: center;
             padding: 20px;
         }
@@ -38,67 +32,64 @@
         .container h1 {
             font-size: 3rem;
             margin-bottom: 20px;
-            color: #ff007b;
+            color: #000000;
+            position: relative;
+            top: -20px;
         }
 
-        /* Input Fields */
+        /* Layout for search and results */
+        .content {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        /* Input Section */
         .budget-input {
             display: flex;
             flex-direction: column;
             gap: 15px;
             width: 100%;
-            max-width: 400px;
+            max-width: 300px;
+            align-items: flex-start;
         }
 
-        .budget-input input {
-            padding: 15px;
+        .budget-input input, .budget-input button {
+            padding: 10px;
             font-size: 1rem;
             border: none;
-            border-radius: 25px;
+            border-radius: 10px;
             outline: none;
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .budget-input input:focus {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
-        }
-
-        /* Submit Button */
-        .budget-input button {
-            padding: 15px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 25px;
+            color: black;
+            background: rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            color: white;
+        }
+
+        .budget-input button {
             background: #007bff;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-            transition: all 0.3s ease;
+            color: white;
         }
 
         .budget-input button:hover {
             background: #0056b3;
-            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.6);
         }
 
         /* Results Section */
         .results {
-            margin-top: 30px;
-            max-width: 400px;
             width: 100%;
+            max-width: 300px;
             text-align: left;
-            max-height: 300px; /* Set a maximum height */
-            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 10px;
         }
 
         .results h2 {
-            margin-bottom: 15px;
-            color: #00ff7b;
+            margin-bottom: 10px;
+            color: #ff007b;
         }
 
         .results ul {
@@ -107,31 +98,29 @@
         }
 
         .results li {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            color: white;
+            padding: 5px 0;
+            color: black;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Dubai Budget Planner</h1>
-        <div class="budget-input">
-            <input type="number" id="minBudget" placeholder="Enter Minimum Budget">
-            <input type="number" id="maxBudget" placeholder="Enter Maximum Budget">
-            <button onclick="submitBudget()">Find Places</button>
-            <button onclick="showFreePlaces()">Show Free Places</button>
-        </div>
-        <div class="results" id="results">
-            <!-- Results will appear here -->
+        <div class="content">
+            <div class="budget-input">
+                <input type="number" id="minBudget" placeholder="Enter Minimum Budget">
+                <input type="number" id="maxBudget" placeholder="Enter Maximum Budget">
+                <button onclick="submitBudget()">Find Places</button>
+                <button onclick="showFreePlaces()">Show Free Places</button>
+            </div>
+            <div class="results" id="results">
+                <!-- Results will appear here -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Updated Data: List of 50 places with prices
-        const places = [
+    const places = [
             { name: "Burj Khalifa - At The Top", price: 169 },
             { name: "Dubai Mall", price: 0 },
             { name: "Desert Safari with BBQ Dinner", price: 300 },
@@ -184,45 +173,33 @@
             { name: "Bab Al Shams Desert Resort", price: 200 }
         ];
 
+
+
         function submitBudget() {
             const minBudget = parseFloat(document.getElementById('minBudget').value);
             const maxBudget = parseFloat(document.getElementById('maxBudget').value);
-
-            if (!minBudget || !maxBudget) {
-                alert('Please enter both minimum and maximum budgets.');
-                return;
-            }
-
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "<h2>Places within budget:</h2><ul>";
+            
             const filteredPlaces = places.filter(place => place.price >= minBudget && place.price <= maxBudget);
-            displayResults(filteredPlaces);
+            filteredPlaces.forEach(place => {
+                resultsDiv.innerHTML += `<li>${place.name} - AED ${place.price}</li>`;
+            });
+            resultsDiv.innerHTML += "</ul>";
         }
 
         function showFreePlaces() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "<h2>Free Places to Visit:</h2><ul>";
+            
             const freePlaces = places.filter(place => place.price === 0);
-            displayResults(freePlaces);
-        }
-
-        function displayResults(filteredPlaces) {
-            const resultsContainer = document.getElementById('results');
-            resultsContainer.innerHTML = '';
-
-            if (filteredPlaces.length === 0) {
-                resultsContainer.innerHTML = '<h2>No places found within this budget range.</h2>';
-                return;
-            }
-
-            resultsContainer.innerHTML = '<h2>Results:</h2>';
-            const list = document.createElement('ul');
-
-            filteredPlaces.forEach(place => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${place.name} - AED ${place.price}`;
-                list.appendChild(listItem);
+            freePlaces.forEach(place => {
+                resultsDiv.innerHTML += `<li>${place.name}</li>`;
             });
-
-            resultsContainer.appendChild(list);
+            resultsDiv.innerHTML += "</ul>";
         }
     </script>
 </body>
 </html>
+
 
